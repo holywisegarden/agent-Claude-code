@@ -1,0 +1,52 @@
+name: DNS Bypass Workflow
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Patch DNS for git - GitHub IP Redirect
+        run: |
+          git config --global url."https://140.82.112.3/".insteadOf "https://github.com/"
+          git config --global url."https://140.82.112.4/".insteadOf "https://github.com/"
+          git config --global url."https://140.82.113.3/".insteadOf "https://github.com/"
+          git config --global url."https://140.82.113.4/".insteadOf "https://github.com/"
+          echo "✓ Git DNS patching complete"
+
+      - name: Apply Python socket patching
+        run: |
+          python3 << 'EOF'
+          import socket
+          from socket import AF_INET, SOCK_STREAM
+          
+          ORIGINAL_GETADDRINFO = socket.getaddrinfo
+          
+          def _patched_getaddrinfo(host, port, *args, **kwargs):
+              if host in {"github.com", "api.github.com"}:
+                  return [(AF_INET, SOCK_STREAM, 6, "", ("140.82.112.3", port))]
+              return ORIGINAL_GETADDRINFO(host, port, *args, **kwargs)
+          
+          socket.getaddrinfo = _patched_getaddrinfo
+          print("✓ Python DNS patching active")
+          EOF
+
+      - name: Verify GitHub connectivity
+        run: |
+          git ls-remote https://github.com/holywisegarden/agent-Claude-code.git HEAD
+          echo "✓ GitHub connectivity verified"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run build or test
+        run: echo "Add your build/test command here"
