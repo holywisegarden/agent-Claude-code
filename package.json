@@ -1,15 +1,14 @@
-{
-  "name": "agent-claude-code",
-  "version": "1.0.0",
-  "description": "social media agent",
-  "main": "index.js",
-  "scripts": {
-    "start": "node index.js",
-    "test": "echo 'No tests specified yet'",
-    "dev": "node index.js"
-  },
+
   "keywords": ["social-media", "agent", "claude"],
   "author": "holywisegarden",
   "license": "ISC",
   "dependencies": {}
-}
+{
+  "name": "agent-claude-code",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  }
+
+
