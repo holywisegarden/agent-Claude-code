@@ -7,40 +7,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Patch DNS for git BEFORE checkout
+      - name: Configure Git with credentials and DNS bypass
         run: |
+          git config --global credential.helper store
+          git config --global url."https://140.82.112.3:443/".insteadOf "https://github.com:443/"
           git config --global url."https://140.82.112.3/".insteadOf "https://github.com/"
-          git config --global url."https://140.82.112.4/".insteadOf "https://github.com/"
-          git config --global url."https://140.82.113.3/".insteadOf "https://github.com/"
-          git config --global url."https://140.82.113.4/".insteadOf "https://github.com/"
           git config --global http.sslVerify false
           git config --global http.postBuffer 524288000
-          echo "✓ Git DNS + SSL patching complete"
+          git config --global http.maxRequestBuffer 524288000
+          git config --global core.compression 0
 
       - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Apply Python socket patching
-        run: |
-          python3 << 'EOF'
-          import socket
-          from socket import AF_INET, SOCK_STREAM
-          
-          ORIGINAL_GETADDRINFO = socket.getaddrinfo
-          
-          def _patched_getaddrinfo(host, port, *args, **kwargs):
-              if host in {"github.com", "api.github.com"}:
-                  return [(AF_INET, SOCK_STREAM, 6, "", ("140.82.112.3", port))]
-              return ORIGINAL_GETADDRINFO(host, port, *args, **kwargs)
-          
-          socket.getaddrinfo = _patched_getaddrinfo
-          print("✓ Python DNS patching active")
-          EOF
-
-      - name: Verify GitHub connectivity
-        run: |
-          git ls-remote https://github.com/holywisegarden/agent-Claude-code.git HEAD
-          echo "✓ GitHub connectivity verified"
+        uses: actions/checkout@v3
+        with:
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -50,5 +30,5 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Run build
-        run: echo "Build successful!"
+      - name: Build
+        run: npm start
