@@ -1,14 +1,13 @@
-
-  "keywords": ["social-media", "agent", "claude"],
-  "author": "holywisegarden",
-  "license": "ISC",
-  "dependencies": {}
 {
   "name": "agent-claude-code",
   "version": "1.0.0",
+  "description": "Jack and Blaze automated social media and content pipeline",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
-  }
-
-
+  },
+  "keywords": ["social-media", "agent", "claude", "jack-and-blaze"],
+  "author": "holywisegarden",
+  "license": "ISC",
+  "dependencies": {}
+}
