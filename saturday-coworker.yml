@@ -1,0 +1,42 @@
+name: Jack and Blaze Saturday AI Coworker
+
+on:
+  schedule:
+    # Every Saturday at 8:00 AM UTC (3:00 AM CDT)
+    - cron: '0 8 * * 6'
+  workflow_dispatch:  # Manual trigger any time
+
+jobs:
+  saturday-coworker:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install anthropic requests python-dotenv feedparser
+
+      - name: Run Saturday AI Coworker
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GMAIL_ADDRESS: ${{ secrets.GMAIL_ADDRESS }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          FAST_IO_API_KEY: ${{ secrets.FAST_IO_API_KEY }}
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+          SLACK_CHANNEL_ID: ${{ secrets.SLACK_CHANNEL_ID }}
+          LATE_API_KEY: ${{ secrets.LATE_API_KEY }}
+        run: python saturday-coworker.py
+
+      - name: Commit generated content
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "Jack and Blaze Bot"
+          git add weekly-drafts*.md friday-author-drafts*.md blog-post-*.md draft-send-log*.md || true
+          git diff --staged --quiet || git commit -m "Saturday coworker: $(date '+%Y-%m-%d')"
+          git push || true
