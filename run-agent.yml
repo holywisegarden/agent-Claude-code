@@ -1,0 +1,32 @@
+name: Run Agent Claude Code
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  run-agent:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout repo
+        uses: actions/checkout@v4
+
+      - name: 🟢 Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: 📦 Install dependencies
+        run: npm install
+
+      - name: 🧠 Ensure entry file exists
+        run: |
+          if [ ! -f index.js ]; then
+            echo "No index.js found. Creating one..."
+            echo 'console.log("Agent running in GitHub Actions 🚀");' > index.js
+          fi
+
+      - name: 🚀 Run app
+        run: npm start
