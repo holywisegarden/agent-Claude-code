@@ -1,4 +1,4 @@
-console.log("Agent Claude Code running 🚀");
+console.log("Server starting...");("Agent Claude Code running 🚀");
 "scripts": {
   "start": "node index.js"
 }
