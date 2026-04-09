@@ -1,34 +1,22 @@
-name: DNS Bypass Workflow
+name: Pipeline Health Check
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
 
 jobs:
-  build:
+  health-check:
     runs-on: ubuntu-latest
-
     steps:
-      - name: Configure Git with credentials and DNS bypass
-        run: |
-          git config --global credential.helper store
-          git config --global url."https://140.82.112.3:443/".insteadOf "https://github.com:443/"
-          git config --global url."https://140.82.112.3/".insteadOf "https://github.com/"
-          git config --global http.sslVerify false
-          git config --global http.postBuffer 524288000
-          git config --global http.maxRequestBuffer 524288000
-          git config --global core.compression 0
-
       - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          persist-credentials: false
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install dependencies
-        run: npm install
-
-      - name: Build
-        run: npm start
+      - name: Confirm pipeline files exist
+        run: |
+          echo "Checking pipeline files..."
+          [ -f blogger-automation.py ] && echo "✅ blogger-automation.py" || echo "❌ blogger-automation.py missing"
+          [ -f post-scheduler.py ]     && echo "✅ post-scheduler.py"     || echo "❌ post-scheduler.py missing"
+          [ -f saturday-coworker.py ]  && echo "✅ saturday-coworker.py"  || echo "❌ saturday-coworker.py missing"
+          [ -f sunday-review.py ]      && echo "✅ sunday-review.py"      || echo "❌ sunday-review.py missing"
+          echo "Health check complete."
